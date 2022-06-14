@@ -127,3 +127,50 @@ root'ом нужно выполнить:
 
 ### дать конкретному пользователю права работать с докером и возможность рестартить докер сервис
 
+**Время интересного :)**
+
+Просматривая лекцию, я понял, что задание со звездочкой я выполню на раз-два, так как преподаватель показал как его выполнять.
+
+Но не тут то было.
+
+Испытания проводил на версии ubuntu 18.04
+
+Создал директорию /etc/polkit-1/rules.d
+
+Написал условие
+
+```
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (action.lookup("unit") == "docker.service" && subject.user === "roman"){
+            if (action.lookup("verb") == "restart") {
+                return polkit.Result.YES;
+            }
+        }
+    }
+});
+```
+![Альтернативный текст](https://i.ibb.co/QfbtLy1/1234.png)
+
+Ошибка
+
+Помогло решение из https://unix.stackexchange.com/questions/496982/restarting-systemd-service-only-as-a-specific-user
+
+Проблема крылась в версии polkit
+
+![Альтернативный текст](https://i.ibb.co/vLX0XBB/1234.png)
+
+```
+root@matveevs:/etc/polkit-1/localauthority/50-local.d# cat org.freedesktop.systemd1.pkla 
+[Allow user roman to run systemctl commands]
+Identity=unix-user:roman
+Action=org.freedesktop.systemd1.manage-units
+ResultInactive=no
+ResultActive=no
+ResultAny=yes
+
+```
+
+![Альтернативный текст](https://i.ibb.co/gtH6mPt/1234.png)
+
+Задачу со * считаю выполненным на 50%, так как данное условие позволяется управлять не только сервисом докера.
