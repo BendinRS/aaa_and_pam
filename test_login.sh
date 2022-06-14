@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 if [ $PAM_USER = "friday" ]; then
   if [ $(date +%a) = "Fri" ]; then
